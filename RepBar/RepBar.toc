@@ -1,0 +1,12 @@
+## Interface: 70100
+## Title: RepBar
+## Notes: Adds all sorts of functionality for reputation changes!
+## Dependencies:
+## SavedVariablesPerCharacter: Rb_save,Rb_version,Rbl
+## X-Curse-Packaged-Version: v1
+## X-Curse-Project-Name: RepBar (Reputation)
+## X-Curse-Project-ID: rep-bar-reputation
+## X-Curse-Repository-ID: wow/rep-bar-reputation/mainline
+Localization\Localization.xml
+RepBar.lua
+RepBar.xml
