@@ -222,6 +222,13 @@ function RepBar_ParagonInit()
 end
 
 function RepBar_PrintRep(FactionName, AmountGained)
+	if FactionName == TEXT("GUILD") then
+		if not Rb_save.Guild then
+			return
+		end
+		FactionName = GetGuildInfo("player");
+	end
+
 	local RepIndex, standingId, bottomValue, topValue, earnedValue= RepBar_GetRepMatch(FactionName)
 	AmountGained = AmountGained + 0 -- ensure that the string value is converted to an integer
 	local ind = 1
@@ -239,12 +246,6 @@ function RepBar_PrintRep(FactionName, AmountGained)
 		table.insert(RBar.Factions, {FactionName, AmountGained})
 	end
 	
-	if FactionName == TEXT("GUILD") then
-		if not Rb_save.Guild then
-			return
-		end
-		FactionName = GetGuildInfo("player");
-	end
 
 	-- Using the string we just made, sending to Match function
 	
