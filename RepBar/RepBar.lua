@@ -29,7 +29,7 @@ RBar = {
     G = 1,
     B = 0
   },
-	paragonIDs = {{"Court of Farondis", 1900},{"Dreamweavers", 1883}, {"Highmountain Tribe", 1828}, {"The Nightfallen", 1859}, {"The Wardens", 1894}, {"Valarjar", 1948}},
+	paragonIDs = {{"Court of Farondis", 1900},{"Dreamweavers", 1883}, {"Highmountain Tribe", 1828}, {"The Nightfallen", 1859}, {"The Wardens", 1894}, {"Valarjar", 1948}, {"Armies of Legionfall", 2045}},
 	Factions = {},
   BufferedRepGain = "",
   AmountGainedInterval = 10,
@@ -172,12 +172,7 @@ function RepBar_OnEvent(self, event, ...)
 		if HasIndexStart ~= nil then
 			RepBar_PrintRep(FactionName, AmountGained)
 		else
-      HasIndexStart, HasIndexStop, FactionName = string.find(arg1, TEXT("REPMATCHPARA"))
-			if HasIndexStart ~= nil then
-				RepBar_PrintParagon(FactionName)
-			else
-				return
-      end
+			return
     end
 		RBar.BufferedRepGain = ""		
     return
@@ -204,7 +199,7 @@ function RepBar_GetRepMatch(FactionName)
     lastFactionName = name
 
     if name == FactionName then
-      return factionIndex, standingId, bottomValue, topValue, earnedValue, paragonValue, threshold, rewardWaiting
+      return factionIndex, standingId, bottomValue, topValue, earnedValue, C_Reputation.IsFactionParagon(factionID), paragonValue, threshold, rewardWaiting
     end
 
     factionIndex = factionIndex + 1
@@ -229,10 +224,14 @@ function RepBar_PrintRep(FactionName, AmountGained)
 		FactionName = GetGuildInfo("player");
 	end
 
-	local RepIndex, standingId, bottomValue, topValue, earnedValue= RepBar_GetRepMatch(FactionName)
+	local RepIndex, standingId, bottomValue, topValue, earnedValue, isParagon= RepBar_GetRepMatch(FactionName)
 	AmountGained = AmountGained + 0 -- ensure that the string value is converted to an integer
 	local ind = 1
 	local knownFac = false
+	if isParagon then
+		RepBar_PrintParagon(FactionName, AmountGained)
+		return true
+	end
 	for index, value in ipairs(RBar.Factions) do
 		if value[1] == FactionName then
 			knownFac = true
@@ -302,22 +301,15 @@ function RepBar_PrintSession()
 	end
 end
 
-function RepBar_PrintParagon(FactionName)
-	local _, standingId, _, _, _, paragonValue, threshold, rewardWaiting= RepBar_GetRepMatch(FactionName)
+function RepBar_PrintParagon(FactionName, AmountGained)
+	local _, standingId, _, _, _, _, paragonValue, threshold, rewardWaiting= RepBar_GetRepMatch(FactionName)
 
-	for index, value in ipairs(paragons) do
-		if FactionName == value[1] then
-			previousParagon = value[3]
-		end
-	end
 	if standingId < 8 then
 		print("|cFFFFFF00You are not exalted with " .. FactionName)
 	else
-		local amountGained = paragonValue - previousParagon
 		for index, value in ipairs(paragons) do
 			if FactionName == value[1] then
 				sessionParagon = paragonValue-value[2]
-				paragons[index][3] = paragonValue
 			end
 		end
 		while paragonValue > 9999 do
@@ -327,7 +319,7 @@ function RepBar_PrintParagon(FactionName)
 
 			local RepScaleToDo = string.rep("¦",(1-(paragonValue/threshold))*60)
 			local RepScaleDone = string.rep("¦",(paragonValue/threshold)*60)	
-			RBar.frame:AddMessage(string.format(TEXT("PARAGON"), amountGained, FactionName, sessionParagon, RepScaleDone, RepScaleToDo, paragonValue, threshold) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
+			RBar.frame:AddMessage(string.format(TEXT("PARAGON"), AmountGained, FactionName, sessionParagon, RepScaleDone, RepScaleToDo, paragonValue, threshold) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
 	end
 end
 
