@@ -5,7 +5,11 @@ Download here: https://github.com/BoboRett/RepBars/archive/master.zip
 
 Put in addons folder, easy-peasy.
 
+C -> Reputations to view the overview window.
+
 Commands:
+
+/rb - Toggle overview
 
 /rb cache - Shows current paragon cache progress.
 
