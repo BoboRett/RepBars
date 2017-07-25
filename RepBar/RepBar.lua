@@ -1,5 +1,3 @@
-
-
 Localization.SetAddonDefault("RepBar", "enUS")
 local function TEXT(key) return Localization.GetClientString("RepBar", key) end
 
@@ -66,9 +64,35 @@ function RepBar_OnLoad(self)
   if DEFAULT_CHAT_FRAME then
     ChatFrame1:AddMessage(TEXT("LOADEDSTR") .. " 1.6.33", 1, 1, 0)
   end
-
+	-- RBar.f = CreateFrame("Frame", "MainWindow", UIParent)
+	-- RBar.f:SetPoint("CENTER",0,0)
+	-- RBar.f:SetMovable(true)
+	-- RBar.f:SetFrameStrata("TOOLTIP")
+	-- RBar.f:SetFrameLevel(100) -- prevent weird interlacings with other tooltips
+	-- RBar.f:SetClampedToScreen(true)
+	-- RBar.f:EnableMouse(true)
+	-- RBar.f:SetUserPlaced(true)
+	-- RBar.f:SetAlpha(0.5)
+	-- RBar.f:SetSize(200,200)
+	-- RBar.f:Show()
   -- Don't let this function run more than once
   RepBar_OnLoad = nil
+end
+
+function RepBar_Window()
+		for k, v in pairs(RBar.paragonIDs) do
+			local factionRowName = _G["RepBar"..k]:GetName()
+			local factionTitle = _G[factionRowName.."FactionName"]
+			local factionBar = _G["RepBar"..k.."ReputationBar"];
+			local factionStanding = _G["RepBar"..k.."ReputationBarFactionStanding"];
+			
+			FactionName, ParagonEarned, rewardWaiting, standingId = RepBar_PrintParagon(v[1],_,false)
+			factionTitle:SetText(FactionName)
+			factionBar:SetValue(ParagonEarned)
+			if standingId <8 then factionStanding:SetText("Not Exalted") else factionStanding:SetText(ParagonEarned.."/10000") end
+			factionBar.BonusIcon:SetShown(rewardWaiting)
+			if rewardWaiting then factionBar.BonusIcon.Glow.GlowAnim:Play() end
+		end
 end
 
 function RepBar_UpdateFactions()
@@ -229,7 +253,8 @@ function RepBar_PrintRep(FactionName, AmountGained)
 	local ind = 1
 	local knownFac = false
 	if isParagon then
-		RepBar_PrintParagon(FactionName, AmountGained)
+		RepBar_PrintParagon(FactionName, AmountGained, true)
+		RepBar_Window()
 		return true
 	end
 	for index, value in ipairs(RBar.Factions) do
@@ -301,11 +326,11 @@ function RepBar_PrintSession()
 	end
 end
 
-function RepBar_PrintParagon(FactionName, AmountGained)
+function RepBar_PrintParagon(FactionName, AmountGained, Verbose)
 	local _, standingId, _, _, _, _, paragonValue, threshold, rewardWaiting= RepBar_GetRepMatch(FactionName)
-
+	
 	if standingId < 8 then
-		print("|cFFFFFF00You are not exalted with " .. FactionName)
+		if Verbose then print("|cFFFFFF00You are not exalted with " .. FactionName) end
 	else
 		for index, value in ipairs(paragons) do
 			if FactionName == value[1] then
@@ -315,12 +340,14 @@ function RepBar_PrintParagon(FactionName, AmountGained)
 		while paragonValue > 9999 do
 			paragonValue = paragonValue - 10000
 		end
-		if rewardWaiting then RBar.frame:AddMessage("|cFFFFFF00" .. FactionName .. " cache is ready for pickup.") end
+	
+		if rewardWaiting and Verbose then RBar.frame:AddMessage("|cFFFFFF00" .. FactionName .. " cache is ready for pickup.") end
 
-			local RepScaleToDo = string.rep("¦",(1-(paragonValue/threshold))*60)
-			local RepScaleDone = string.rep("¦",(paragonValue/threshold)*60)	
-			RBar.frame:AddMessage(string.format(TEXT("PARAGON"), AmountGained, FactionName, sessionParagon, RepScaleDone, RepScaleToDo, paragonValue, threshold) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
+		local RepScaleToDo = string.rep("¦",(1-(paragonValue/threshold))*60)
+		local RepScaleDone = string.rep("¦",(paragonValue/threshold)*60)	
+		if Verbose then RBar.frame:AddMessage(string.format(TEXT("PARAGON"), AmountGained, FactionName, sessionParagon, RepScaleDone, RepScaleToDo, paragonValue, threshold) , RBar.Color.R, RBar.Color.G, RBar.Color.B) end
 	end
+	return FactionName, paragonValue, rewardWaiting, standingId
 end
 
 
@@ -433,10 +460,11 @@ function RepBar(msg)
   if msg then
     local command = string.lower(msg)
     if command == "" then
-      RepBar_PrintHelp()
+			if RepBarFrame:IsVisible() then RepBarFrame:Hide() else	RepBarFrame:Show()	end
+      RepBar_Window()
 		elseif command == "cache" then
 			for k, v in pairs(RBar.paragonIDs) do
-				RepBar_PrintParagon(v[1])
+				_ = RepBar_PrintParagon(v[1],_,true)
 			end
 		elseif command == "ap" then
 			RepBar_PrintAP()
@@ -445,7 +473,7 @@ function RepBar(msg)
 		elseif command == "test1" then
 			RepBar_PrintRep("Arakkoa Outcasts", 10)
 		elseif command == "testpara" then
-			RepBar_PrintParagon("Court of Farondis")
+			_ = RepBar_PrintParagon("Court of Farondis",_,true)
 		elseif command == "session" then
 			RepBar_PrintSession()
     else
