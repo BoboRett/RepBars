@@ -1,26 +1,23 @@
-Localization.SetAddonDefault("RepBar", "enUS")
-local function TEXT(key) return Localization.GetClientString("RepBar", key) end
-
 RBar = {
   defaultframe = "ChatFrame1",
   Units = {
-    [1] = TEXT("HATED"),
-    [2] = TEXT("HOSTILE"),
-    [3] = TEXT("UNFRIENDLY"),
-    [4] = TEXT("NEUTRAL"),
-    [5] = TEXT("FRIENDLY"),
-    [6] = TEXT("HONORED"),
-    [7] = TEXT("REVERED"),
-    [8] = TEXT("EXALTED"),
-    [9] = TEXT("MAXEXALTED")
+    [1] = "Hated",
+    [2] = "Hostile",
+    [3] = "Unfriendly",
+    [4] = "Neutral",
+    [5] = "Friendly",
+    [6] = "Honored",
+    [7] = "Revered",
+    [8] = "Exalted",
+    [9] = "Max Exalted"
   },
   UnitsFriends = {
-    [1] = TEXT("STRANGER"),      --     0 -  8400
-    [2] = TEXT("ACQUAINTANCE"),  --  8400 - 16800
-    [3] = TEXT("BUDDY"),         -- 16800 - 25200
-    [4] = TEXT("FRIEND"),        -- 25200 - 33600
-    [5] = TEXT("GOODFRIEND"),    -- 33600 - 42000
-    [6] = TEXT("BESTFRIEND")     -- 42000 - 42999
+    [1] = "Stranger",      --     0 -  8400
+    [2] = "Acquaintance",  --  8400 - 16800
+    [3] = "Buddy",         -- 16800 - 25200
+    [4] = "Friend",        -- 25200 - 33600
+    [5] = "Good Friend",   -- 33600 - 42000
+    [6] = "Best Friend"    -- 42000 - 42999
   },
   Color = {
     R = 1,
@@ -50,9 +47,8 @@ function RepBar_OnLoad(self)
   self:RegisterEvent("CHAT_MSG_COMBAT_FACTION_CHANGE") -- changes in faction come in on this channel
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:RegisterEvent("VARIABLES_LOADED")
-  self:RegisterEvent("WORLD_MAP_UPDATE")
   self:RegisterEvent("CHAT_MSG_SYSTEM") -- New factions come in on this channel
-	self:RegisterEvent("ARTIFACT_XP_UPDATE")
+	self:RegisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
 
   -- Register our slash command
   SLASH_RepBar1 = "/RepBar"
@@ -62,19 +58,9 @@ function RepBar_OnLoad(self)
   end
   -- Printing Message in Chat Frame
   if DEFAULT_CHAT_FRAME then
-    ChatFrame1:AddMessage(TEXT("LOADEDSTR") .. " 1.6.33", 1, 1, 0)
+    ChatFrame1:AddMessage("RepBar Loaded! Version: 1.6.33", 1, 1, 0)
   end
-	-- RBar.f = CreateFrame("Frame", "MainWindow", UIParent)
-	-- RBar.f:SetPoint("CENTER",0,0)
-	-- RBar.f:SetMovable(true)
-	-- RBar.f:SetFrameStrata("TOOLTIP")
-	-- RBar.f:SetFrameLevel(100) -- prevent weird interlacings with other tooltips
-	-- RBar.f:SetClampedToScreen(true)
-	-- RBar.f:EnableMouse(true)
-	-- RBar.f:SetUserPlaced(true)
-	-- RBar.f:SetAlpha(0.5)
-	-- RBar.f:SetSize(200,200)
-	-- RBar.f:Show()
+
   -- Don't let this function run more than once
   RepBar_OnLoad = nil
 end
@@ -136,7 +122,7 @@ function RepBar_LoadSavedVars()
       },
       AmountGainedInterval = 1
     }
-    ChatFrame1:AddMessage(TEXT("NEWLOADSTR"), 1, 1, 0)
+    ChatFrame1:AddMessage("NEW LOAD, default values set!", 1, 1, 0)
   end
 
   if Rb_version < 170 then
@@ -166,7 +152,6 @@ function RepBar_LoadSavedVars()
   RBar.AmountGainedInterval = Rb_save.AmountGainedInterval
   RBar.ChangeBar = Rb_save.ChangeBar
 
-  Rb_Status()
 end
 
 ------------
@@ -192,7 +177,7 @@ function RepBar_OnEvent(self, event, ...)
       end
     end
     -- Reputation with <REPNAME> increased by <AMOUNT>.
-    local HasIndexStart, HasIndexStop, FactionName, AmountGained = string.find(arg1, TEXT("REPMATCHSTR"))
+    local HasIndexStart, HasIndexStop, FactionName, AmountGained = string.find(arg1, "Reputation with (.*) increased by (%d+).")
 		if HasIndexStart ~= nil then
 			RepBar_PrintRep(FactionName, AmountGained)
 		else
@@ -200,9 +185,10 @@ function RepBar_OnEvent(self, event, ...)
     end
 		RBar.BufferedRepGain = ""		
     return
-	elseif event == "ARTIFACT_XP_UPDATE" then
-		RepBar_PrintAP()
+	elseif event == "AZERITE_ITEM_EXPERIENCE_CHANGED" then
+		RepBar_PrintAP()	
 	end
+	
 end
 
 ------------
@@ -241,7 +227,7 @@ function RepBar_ParagonInit()
 end
 
 function RepBar_PrintRep(FactionName, AmountGained)
-	if FactionName == TEXT("GUILD") then
+	if FactionName == "Guild" then
 		if not Rb_save.Guild then
 			return
 		end
@@ -305,12 +291,12 @@ function RepBar_PrintRep(FactionName, AmountGained)
 					sessionGained = value[2]
 				end
 			end
-			RBar.frame:AddMessage(string.format(TEXT("REPSTRFULL"), AmountGained, FactionName, sessionGained, RepScaleDone, RepScaleToDo, (earnedValue-bottomValue), (topValue-bottomValue), RepNextLevelName) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
+			RBar.frame:AddMessage(string.format("|cFF9999ff+%d reputation - %s (%d this session)|n -[|cFF00ccff%s|cFFFFFF00%s|cFF9999ff]- %d/%d to %s", AmountGained, FactionName, sessionGained, RepScaleDone, RepScaleToDo, (earnedValue-bottomValue), (topValue-bottomValue), RepNextLevelName) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
 			RBar.AmountGained = 0
 		end
 	else
 		RBar.BufferedRepGain = arg1
-		RBar.frame:AddMessage(TEXT("NEWFACTION"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
+		RBar.frame:AddMessage("Brand new faction detected!", RBar.Color.R, RBar.Color.G, RBar.Color.B)
 	end
 end
 
@@ -345,7 +331,7 @@ function RepBar_PrintParagon(FactionName, AmountGained, Verbose)
 
 		local RepScaleToDo = string.rep("¦",(1-(paragonValue/threshold))*60)
 		local RepScaleDone = string.rep("¦",(paragonValue/threshold)*60)	
-		if Verbose then RBar.frame:AddMessage(string.format(TEXT("PARAGON"), AmountGained, FactionName, sessionParagon, RepScaleDone, RepScaleToDo, paragonValue, threshold) , RBar.Color.R, RBar.Color.G, RBar.Color.B) end
+		if Verbose then RBar.frame:AddMessage(string.format("|cFF9999ff+%d reputation - %s (%d this session)|n Progress to cache -[|cFF00ccff%s|cFFFFFF00%s|cFF9999ff]- %d/%d", AmountGained, FactionName, sessionParagon, RepScaleDone, RepScaleToDo, paragonValue, threshold) , RBar.Color.R, RBar.Color.G, RBar.Color.B) end
 	end
 	return FactionName, paragonValue, rewardWaiting, standingId
 end
@@ -356,19 +342,11 @@ function RepBar_PrintAP()
 		local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end
-	local artifactItemID, _, _, _, APvalue, artifactPointsSpent, _, _, _, _, _, _, artifactTier = C_ArtifactUI.GetEquippedArtifactInfo()
-	local numPoints = 0
-	local APtop = C_ArtifactUI.GetCostForPointAtRank(artifactPointsSpent,artifactTier)
-	local nextRank = artifactPointsSpent + 1
-	while APvalue >= APtop and APtop > 0 do
-		numPoints = numPoints + 1
-		APvalue = APvalue - APtop
-		APtop = C_ArtifactUI.GetCostForPointAtRank(artifactPointsSpent+numPoints,artifactTier)
-	end
-	local APScaleToDo = string.rep("¦",(1-(APvalue/APtop))*60)
-	local APScaleDone = string.rep("¦",(APvalue/APtop)*60)
-	if numPoints > 0 then print("|cFFFFFF00"..numPoints.." traits ready.") end
-	RBar.frame:AddMessage(string.format(TEXT("ARTIFACT"), nextRank+numPoints, comma_value(APtop-APvalue), APScaleDone, APScaleToDo, comma_value(APvalue), comma_value(APtop)) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
+	local CurrentXP, TotalXp = C_AzeriteItem.GetAzeriteItemXPInfo(C_AzeriteItem.FindActiveAzeriteItem())
+	local CurrentLevel = C_AzeriteItem.GetPowerLevel(C_AzeriteItem.FindActiveAzeriteItem())
+	local APScaleToDo = string.rep("¦",(1-(CurrentXP/TotalXp))*60)
+	local APScaleDone = string.rep("¦",(CurrentXP/TotalXp)*60)
+	RBar.frame:AddMessage(string.format("|cFF9999ff Progress to rank %s - %s to go |n -\[|cFF00ccff%s|cFFFFFF00%s|cFF9999ff\]- %s/%s", CurrentLevel + 1, comma_value(TotalXp-CurrentXP), APScaleDone, APScaleToDo, comma_value(CurrentXP), comma_value(TotalXp)) , RBar.Color.R, RBar.Color.G, RBar.Color.B)
 end
 
 function RepBar_OnUpdate(self, elapsed)
@@ -379,50 +357,13 @@ function RepBar_OnUpdate(self, elapsed)
   end
 end
 
-------------
--- Printing Functions
-------------
-function Rb_Status()
-  -- RBar.frame:AddMessage(TEXT("STATUS"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-
-  -- if Rb_save.RepChange == true then
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("ANNOUNCE"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- else
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("NOANNOUNCE"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- end
-  -- if Rb_save.ChangeBar == true then
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("CHANGEBAR"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- else
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("NOCHANGEBAR"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- end
-  -- if Rb_save.AnnounceLeft == true then
-    -- RBar.frame:AddMessage("RepBar " .. string.format(TEXT("REPLEFT"), RBar.AmountGainedInterval), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- else
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("NOREPLEFT"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- end
-  -- if Rb_save.ATimeLeft == true then
-    -- RBar.frame:AddMessage("RepBar " .. string.format(TEXT("TIMELEFT"), RBar.AmountGainedInterval), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- else
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("NOTIMELEFT"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- end
-  -- if Rb_save.Guild == true then
-    -- RBar.frame:AddMessage("RepBar " .. string.format(TEXT("PROCESSGUILD"), RBar.AmountGainedInterval), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- else
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("NOPROCESSGUILD"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- end
-  -- if Rb_save.frame == true then
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("SHOWCHATFRAME"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- else
-    -- RBar.frame:AddMessage("RepBar " .. TEXT("SHOWCOMBATLOG"), RBar.Color.R, RBar.Color.G, RBar.Color.B)
-  -- end
-end
 
 function RepBar_PrintHelp()
   RBar.frame:AddMessage(" ")
   RBar.frame:AddMessage("-----------------------------------")
-  RBar.frame:AddMessage(TEXT("HELPTITLE"))
-  RBar.frame:AddMessage(TEXT("HELPSLASH"))
-  RBar.frame:AddMessage("help -- " .. TEXT("HELPHELP"))
+  RBar.frame:AddMessage("RepBar commands help:")
+  RBar.frame:AddMessage("Use /repbar <command> or /rb <command> to perform the following commands:")
+  RBar.frame:AddMessage("help -- You are viewing it!")
   RBar.frame:AddMessage("ap -- Show current artifact weapon trait progress")
   RBar.frame:AddMessage("cache -- Show current paragon cache progress")
   RBar.frame:AddMessage("session -- Show current session's progress")
@@ -438,16 +379,16 @@ function RepBar_TimeText(s)
 
   local timeText = ""
   if days ~= 0 then
-    timeText = timeText..format("%d" .. TEXT("DAYS") .. " ", days)
+    timeText = timeText..format("%d d", days)
   end
   if hours ~= 0 then
-    timeText = timeText..format("%d" .. TEXT("HOURS") .. " ", hours)
+    timeText = timeText..format("%d h", hours)
   end
   if minutes ~= 0 then
-    timeText = timeText..format("%d" .. TEXT("MINUTES") .. " ", minutes)
+    timeText = timeText..format("%d m", minutes)
   end
   if seconds ~= 0 then
-    timeText = timeText..format("%d" .. TEXT("SECONDS") .. " ", seconds)
+    timeText = timeText..format("%d s", seconds)
   end
 
   return timeText
@@ -496,17 +437,17 @@ end
 
 function isFriendRep(FactionName)
   local FriendRep = {}
-  table.insert(FriendRep, TEXT("FUNG"))
-  table.insert(FriendRep, TEXT("CHEE"))
-  table.insert(FriendRep, TEXT("ELLA"))
-  table.insert(FriendRep, TEXT("FISH"))
-  table.insert(FriendRep, TEXT("GINA"))
-  table.insert(FriendRep, TEXT("HAOHAN"))
-  table.insert(FriendRep, TEXT("JOGU"))
-  table.insert(FriendRep, TEXT("HILLPAW"))
-  table.insert(FriendRep, TEXT("SHO"))
-  table.insert(FriendRep, TEXT("TINA"))
-  table.insert(FriendRep, TEXT("NAT"))
+  table.insert(FriendRep, "Farmer Fung")
+  table.insert(FriendRep, "Chee Chee")
+  table.insert(FriendRep, "Ella")
+  table.insert(FriendRep, "Fish Fellreed")
+  table.insert(FriendRep, "Gina Mudclaw")
+  table.insert(FriendRep, "Haohan Mudclaw")
+  table.insert(FriendRep, "Jogu the Drunk")
+  table.insert(FriendRep, "Old Hillpaw")
+  table.insert(FriendRep, "Sho")
+  table.insert(FriendRep, "Tina Mudclaw")
+  table.insert(FriendRep, "Nat Pagle")
 
   return tContains(FriendRep, FactionName)
 end

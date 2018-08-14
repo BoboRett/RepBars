@@ -7,6 +7,5 @@
 ## X-Curse-Project-Name: RepBar (Reputation)
 ## X-Curse-Project-ID: rep-bar-reputation
 ## X-Curse-Repository-ID: wow/rep-bar-reputation/mainline
-Localization\Localization.xml
 RepBar.lua
 RepBar.xml
