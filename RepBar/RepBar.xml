@@ -23,14 +23,14 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString name="$parentFactionName" inherits="GameFontHighlightSmall" justifyH="LEFT">
+				<FontString parentKey="Title" inherits="GameFontHighlightSmall" justifyH="LEFT">
 					<Size x="135" y="10"/>
 					<Anchors><Anchor x="10" y="-5"/></Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>
-			<StatusBar name="$parentReputationBar" drawLayer="BACKGROUND" minValue="0" maxValue="10000" defaultValue="1">
+			<StatusBar parentKey="Slider" drawLayer="BACKGROUND" minValue="0" maxValue="10000" defaultValue="1">
 				<Size>
 					<AbsDimension x="130" y="13"/>
 				</Size>
@@ -41,7 +41,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Layers> <!--Slider Textures-->
+				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentLeftTexture" file="Interface\PaperDollInfoFrame\UI-Character-ReputationBar">
 							<Size>
@@ -69,7 +69,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 							</Anchors>
 							<TexCoords left="0.0" right="0.152" top="0.3906" bottom="0.625"/>
 						</Texture>
-						<FontString name="$parentFactionStanding" inherits="GameFontHighlightSmall" text="Revered">
+						<FontString parentKey="ValueText" inherits="GameFontHighlightSmall" text="Revered">
 							<Anchors>
 								<Anchor point="CENTER">
 									<Offset>
@@ -102,7 +102,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 						</Texture>
 					</Layer>
 				</Layers>
-				<Frames> <!--Cache Icon Textures-->
+				<Frames>
 					<Frame parentKey="BonusIcon" hidden="true">
 						<Size x="16" y="16"/>
 						<Anchors>
@@ -156,20 +156,6 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 		</Frames>
 	</Button>
 
-	<Frame name="RepBarLoader">
-		<Scripts>
-			<OnLoad>
-				RepBar_OnLoad(self);
-			</OnLoad>
-			<OnEvent>
-				RepBar_OnEvent(self, event, ...);
-			</OnEvent>
-			<OnUpdate>
-				RepBar_OnUpdate(self, elapsed);
-			</OnUpdate>
-		</Scripts>
-	</Frame>
-
 	<Frame name="RepBarFrame" parent="ReputationFrame" movable="true" enableMouse="true">
 		<Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground" edgeFile="Interface/Tooltips/UI-Tooltip-Border">
 			<EdgeSize>
@@ -182,7 +168,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 				<AbsInset left="5" right="5" top="5" bottom="5"/>
 			</BackgroundInsets>
 		</Backdrop>
-		<Size x="340" y="240"/>
+		<Size x="320" y="300"/>
 		<Anchors>
 			<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="20"/>
 		</Anchors> 
@@ -196,41 +182,6 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="RepBar1" inherits="RepBarTemplate" id="1">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-25"/>
-				</Anchors>
-			</Button>
-			<Button name="RepBar2" inherits="RepBarTemplate" id="2">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-50"/>
-				</Anchors>
-			</Button>
-			<Button name="RepBar3" inherits="RepBarTemplate" id="3">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-75"/>
-				</Anchors>
-			</Button>
-			<Button name="RepBar4" inherits="RepBarTemplate" id="4">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-100"/>
-				</Anchors>
-			</Button>
-			<Button name="RepBar5" inherits="RepBarTemplate" id="5">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-125"/>
-				</Anchors>
-			</Button>
-			<Button name="RepBar6" inherits="RepBarTemplate" id="6">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-150"/>
-				</Anchors>
-			</Button>
-			<Button name="RepBar7" inherits="RepBarTemplate" id="7">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="RepBarFrame" y="-175"/>
-				</Anchors>
-			</Button>
 			<Button name="Close" inherits="UIPanelButtonTemplate" text="Close">
 				<Size x="120" y="20"/>
 				<Anchors>
@@ -248,6 +199,20 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 			</OnShow>
 		</Scripts>
 
+	</Frame>
+	
+	<Frame name="RepBarLoader">
+		<Scripts>
+			<OnLoad>
+				RepBar_OnLoad(self);
+			</OnLoad>
+			<OnEvent>
+				RepBar_OnEvent(self, event, ...);
+			</OnEvent>
+			<OnUpdate>
+				RepBar_OnUpdate(self, elapsed);
+			</OnUpdate>
+		</Scripts>
 	</Frame>
 
 </Ui> 

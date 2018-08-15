@@ -24,7 +24,26 @@ RBar = {
     G = 1,
     B = 0
   },
-	paragonIDs = {{"Court of Farondis", 1900},{"Dreamweavers", 1883}, {"Highmountain Tribe", 1828}, {"The Nightfallen", 1859}, {"The Wardens", 1894}, {"Valarjar", 1948}, {"Armies of Legionfall", 2045}},
+	paragonIDs = {
+		{"Legion",
+			{
+				{"Court of Farondis", 1900},
+				{"Dreamweavers", 1883}, 
+				{"Highmountain Tribe", 1828},
+				{"The Nightfallen", 1859},
+				{"The Wardens", 1894},
+				{"Valarjar", 1948},
+				{"Armies of Legionfall", 2045},
+				{"Army of the Light", 2165},
+				{"Argussian Reach", 2170}
+			}
+		},
+		{"BFA",
+			{
+				{"Court of Farondis", 1900}
+			}
+		}
+	},
 	Factions = {},
   BufferedRepGain = "",
   AmountGainedInterval = 10,
@@ -43,11 +62,11 @@ function RepBar_OnLoad(self)
   self.registry = {
     id = "RepBar"
   }
-  -- Register the game events neccesary for the addon
-  self:RegisterEvent("CHAT_MSG_COMBAT_FACTION_CHANGE") -- changes in faction come in on this channel
+
+  self:RegisterEvent("CHAT_MSG_COMBAT_FACTION_CHANGE")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:RegisterEvent("VARIABLES_LOADED")
-  self:RegisterEvent("CHAT_MSG_SYSTEM") -- New factions come in on this channel
+  self:RegisterEvent("CHAT_MSG_SYSTEM")
 	self:RegisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
 
   -- Register our slash command
@@ -60,25 +79,72 @@ function RepBar_OnLoad(self)
   if DEFAULT_CHAT_FRAME then
     ChatFrame1:AddMessage("RepBar Loaded! Version: 1.6.33", 1, 1, 0)
   end
+	
+	for i, expansion in pairs(RBar.paragonIDs) do
+			
+		local tab = CreateFrame("Frame","RepBarPage"..i,RepBarFrame)
+		tab:SetPoint("TOPLEFT")
+		tab:SetPoint("BOTTOMRIGHT")
+		local tabButton = CreateFrame("Button","RepBarFrameTab"..i,RepBarFrame,"CharacterFrameTabButtonTemplate")
+		tabButton:SetID(i)
+		tabButton:SetText(expansion[1])
+		
+		if i == 1 then
+			tabButton:SetPoint("CENTER",RepBarFrame,"BOTTOMLEFT",60,-12)
+		else
+			tabButton:SetPoint("LEFT",_G["RepBarFrameTab"..i-1],"RIGHT",-10,0)
+			tab:Hide()
+		end
+		
+		tabButton:SetScript("OnClick",function(self)
+				PanelTemplates_SetTab(RepBarFrame,self:GetID())
+				for j=1,#RBar.paragonIDs do
+					if i==j then
+						_G["RepBarPage"..j]:Show()
+					else
+						_G["RepBarPage"..j]:Hide()
+					end
+				end
+			end
+		)
+		
+		for index, faction in pairs(expansion[2]) do
+			
+			local factionBar = CreateFrame("Button","RepBar"..i.."_"..index,tab,"RepBarTemplate")
+			factionBar:SetPoint("TOP",0,-25*index)
+			
+		end
+		
+	end
+	
+	PanelTemplates_SetNumTabs(RepBarFrame, #RBar.paragonIDs);
+	PanelTemplates_SetTab(RepBarFrame, 1);
 
   -- Don't let this function run more than once
   RepBar_OnLoad = nil
 end
 
 function RepBar_Window()
-		for k, v in pairs(RBar.paragonIDs) do
-			local factionRowName = _G["RepBar"..k]:GetName()
-			local factionTitle = _G[factionRowName.."FactionName"]
-			local factionBar = _G["RepBar"..k.."ReputationBar"];
-			local factionStanding = _G["RepBar"..k.."ReputationBarFactionStanding"];
+
+		for i, expansion in pairs(RBar.paragonIDs) do
+		
+			for index, faction in pairs(expansion[2]) do
 			
-			FactionName, ParagonEarned, rewardWaiting, standingId = RepBar_PrintParagon(v[1],_,false)
-			factionTitle:SetText(FactionName)
-			factionBar:SetValue(ParagonEarned)
-			if standingId <8 then factionStanding:SetText("Not Exalted") else factionStanding:SetText(ParagonEarned.."/10000") end
-			factionBar.BonusIcon:SetShown(rewardWaiting)
-			if rewardWaiting then factionBar.BonusIcon.Glow.GlowAnim:Play() end
+				local factionBar = _G["RepBar"..i.."_"..index]
+				local slider = factionBar.Slider
+				local bonusIcon = slider.BonusIcon
+				
+				FactionName, ParagonEarned, rewardWaiting, standingId = RepBar_PrintParagon(faction[1],_,false)
+				factionBar.Title:SetText(FactionName)
+				slider:SetValue(ParagonEarned)
+				if standingId < 8 then slider.ValueText:SetText("Not Exalted") else slider.ValueText:SetText(ParagonEarned.."/10000") end
+				bonusIcon:SetShown(rewardWaiting)
+				if rewardWaiting then bonusIcon.Glow.GlowAnim:Play() end
+				
+			end
+			
 		end
+		
 end
 
 function RepBar_UpdateFactions()
@@ -218,10 +284,12 @@ end
 
 function RepBar_ParagonInit()
 	local paragons = {}
-	for index, value in ipairs(RBar.paragonIDs) do
-		local repu,_,_,_ = C_Reputation.GetFactionParagonInfo(value[2])
-		table.insert(paragons, {value[1], repu, repu})
-	end
+		for i, expansion in pairs(RBar.paragonIDs) do
+			for index, faction in pairs(expansion[2]) do
+				local repu,_,_,_ = C_Reputation.GetFactionParagonInfo(faction[2])
+				table.insert(paragons, {faction[1], repu, repu})
+			end
+		end
 	notran=false
 	return paragons
 end
