@@ -40,7 +40,12 @@ RBar = {
 		},
 		{"BFA",
 			{
-				{"Court of Farondis", 1900}
+				{"Champions of Azeroth", 2164},
+				{"Tortollan Seekers", 2163},
+				{"Zandalari Empire", 2103},
+				{"Talanji's Expedition", 2156},
+				{"Voldunai", 2158},
+				{"The Honorbound", 2157}
 			}
 		}
 	},
