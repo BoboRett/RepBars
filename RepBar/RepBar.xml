@@ -156,7 +156,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 		</Frames>
 	</Button>
 
-	<Frame name="RepBarFrame" parent="ReputationFrame" movable="true" enableMouse="true">
+	<Frame name="RepBarFrame" parent="ReputationFrame" movable="true" enableMouse="true" FrameStrata="BACKGROUND">
 		<Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground" edgeFile="Interface/Tooltips/UI-Tooltip-Border">
 			<EdgeSize>
 				<AbsValue val="16"/>
