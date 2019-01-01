@@ -5,7 +5,7 @@ Download here: https://github.com/BoboRett/RepBars/archive/master.zip
 
 Put in addons folder, easy-peasy.
 
-C -> Reputations to view the overview window.
+Character Panel -> Reputations to view the overview window.
 
 Commands:
 
